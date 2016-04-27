@@ -1,0 +1,144 @@
+.h
+#include<stdio.h>
+#include<stdlib.h>
+#include<assert.h>
+#include<errno.h>
+
+.cpp
+#define _CRT_SECURE_NO_WARNINGS 1
+
+#include"AnnotationConver.h"
+
+typedef enum State
+{
+	C_BEGIN,
+	C_END,
+}State;
+
+void Conver(FILE* put, FILE* Out)
+{
+	char frist, second;
+	State tag = C_BEGIN;
+	assert(put);
+	assert(Out);
+	do
+	{
+		frist = fgetc(put);
+		switch (frist)
+		{
+		case '/':
+			second =  fgetc(put);
+				if(second == '*' && tag == C_BEGIN)   // 3.匹配问题
+				{
+               fputc('/',Out);
+			   fputc('/',Out);
+			   tag = C_END;
+				}
+		
+			else
+			{
+				fputc(frist,Out);
+				fputc(second,Out);
+				if(second == '/')
+			{
+                char nextch;
+                do
+              {   nextch = fgetc(put);
+                  fputc(nextch, Out);
+              } while (nextch != '\n' && nextch != EOF);
+			}
+				}
+			break;
+
+		case'*':
+			second =  fgetc(put);
+			if(second == '/')
+			{
+				/*if(tag == C_BEGIN)
+			   {
+				fputc('\n',Out);
+				tag = C_BEGIN;
+				}
+				else if (tag == C_DD)
+				{
+					fputc(frist,Out);
+					fputc(second,Out);
+				}*/
+				 char nextch ;
+				 fputc('\n', Out);
+                    tag = C_BEGIN;
+					nextch = fgetc(put);
+                   
+                    if (nextch == '/')
+                    {
+                        fseek(put, -1, SEEK_CUR);
+                    }
+                    else if (nextch != '\n')
+                    {
+						fputc(nextch, Out);
+                    }
+			}
+
+			else //连续的**/问题
+			{
+				fputc(frist,Out);
+				fseek(put,-1,SEEK_CUR);
+				
+			}
+			break;
+
+		case '\n':  // 4.多行注释问题
+			/*second =  fgetc(put);
+				if(second == EOF)
+			{
+				break;
+			}*/
+			if(tag == C_END)
+			{
+			 fputc('\n',Out);
+			 fputc('/',Out);
+			 fputc('/',Out);
+           
+			}
+
+			/*else if(tag == C_BEGIN)
+			{
+				fputc(frist,Out);
+
+			}*/
+			break;
+
+		default:
+			fputc(frist,Out);
+			break;
+		}
+	}while(frist != EOF );
+
+
+}
+
+void Annotationconver(const char* putfile, const char* Outfile)
+{
+	FILE* put, *Out;
+	put = fopen(putfile,"r");
+	if(put == NULL)
+	{
+		printf("打开文件%s失败,errno:%d\n",putfile,errno);
+	}
+     Out = fopen(Outfile,"w");
+	if(Out == NULL)
+	{
+		printf("打开文件%s失败,errno:%d\n",Outfile,errno);
+	}
+
+	Conver(put, Out);
+	fclose(put);
+	fclose(Out);
+}
+
+int main()
+{
+	Annotationconver("input.c","output.c");
+	system("pause");
+	return 0;
+}
