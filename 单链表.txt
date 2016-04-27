@@ -1,0 +1,201 @@
+void  TailPrintNode(SListNode* & pos)  //从尾到头打印
+{
+	if(pos == NULL)
+		return;
+	else
+	{
+		TailPrintNode(pos->next);
+		printf("%d",pos->data);
+	}
+}
+
+void DelHeadless(SListNode* & pos, DataType x) //删除无头单链表非尾节点
+{
+	if (pos->next == NULL)
+		return;
+
+	SListNode* cur =pos;
+	while(cur)
+	{
+		cur = cur->next;
+		if(cur->data == x)
+			break;
+		else
+		{
+			printf("没有改节点");
+			return;
+		}
+	}
+	cur->data = cur->next->data;
+	cur->next = cur ->next->next;
+	free(cur->next);
+}
+
+
+void InserHeadlessList(SListNode* & pos, DataType tar, DataType x)//在无头单链表非头节点插入一个节点
+{
+	if (pos->next == NULL)
+		return;
+
+	SListNode* cur =pos;
+	SListNode* tail =NULL;
+	while(cur)
+	{
+		cur = cur->next;
+		if(cur->data == tar)
+			break;
+		else
+		{
+			printf("没有改节点");
+			return;
+		}
+	}
+	tail = _BuyNode(tar);
+	tail ->next = cur->next;
+	cur->next = tail;
+	cur->data = x;
+}
+
+SListNode* JosephList(SListNode* & pos, DataType x)//约瑟夫环问题
+{
+	if(pos == NULL)
+		return NULL;
+
+	int count = 1;
+	while(pos->next != pos)
+	{
+		pos = pos->next;
+		count++;
+		if(count == x)
+		{
+			pos = pos->next->next;
+			free(pos->next);
+			count = 1;
+		}
+	}
+	return pos;
+}
+
+SListNode* INverList(SListNode* & pos)  //反转链表
+{
+	SListNode* newlist = NULL;
+	SListNode* cur = pos ;
+
+	while(cur)
+	{
+		SListNode* tmp = cur;
+		cur = cur->next;
+		tmp->next = newlist;
+		newlist = tmp;
+	}
+	return newlist;
+}
+
+
+/*SListNode* BubbleSort(SListNode* & pos)//冒泡排序  有问题
+{
+	SListNode* front = pos;
+	SListNode* tail  = pos->next;
+	while(tail !=NULL)
+	{
+		
+		while(front)
+		{
+		if(front->data > tail->data)
+		{
+			DataType tmp = front->data;
+			front->data = tail->data;
+			tail->data = tmp;
+		}
+		
+		front = tail;
+		tail = tail->next;
+	}
+	
+		return pos;
+}*/
+
+SListNode* MergeList(SListNode* & p1, SListNode* & p2)//合并有序单链表
+{
+    if(p1 == NULL )
+		return p1;
+
+	if(p2 == NULL)
+		return  p2;
+
+	SListNode* front = p1;
+	SListNode* tail = p2;
+	SListNode*  newlist = NULL;
+
+	if(front->data <= tail->data)
+	{
+        newlist =front;
+	    front = front->next;
+		tail = tail->next;
+	}
+		
+	else
+	{
+		newlist = tail;
+		tail = tail->next;
+		tail = tail->next;
+	}
+
+	while(front && tail)
+	{
+	 if(front->data <= tail->data)
+	 {
+		newlist->next = front;
+		front = front->next;
+	 }
+		
+	 else
+	 {
+		newlist->next = tail;
+		tail = tail->next;
+	 }
+       
+	}
+
+	if(front ==NULL && tail !=NULL)
+	{
+		newlist->next = tail;
+	}
+
+	else if(tail==NULL&& front !=NULL)
+	{
+		newlist->next = front;
+	}
+
+	else return newlist;
+		
+	return newlist;
+
+}
+
+SListNode* Merge(SListNode* & p1, SListNode* & p2)//合并有序单链表递归
+{
+    if(p1 == NULL )
+		return p1;
+
+	if(p2 == NULL)
+		return  p2;
+
+	SListNode* front = p1;
+	SListNode* tail = p2;
+	SListNode*  newlist = NULL;
+
+	if(front->data <= tail->data)
+	{
+        newlist =front;
+		newlist->next=Merge(front->next,tail);
+	}
+		
+	else
+	{
+		newlist = tail;
+		newlist->next=Merge(front,tail->next);
+	}
+
+	return newlist;
+}
