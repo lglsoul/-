@@ -1,0 +1,225 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+
+#include<iostream>
+using namespace std;
+
+class Date
+{
+public:
+	Date(int year, int month, int day)
+	{
+		_year = year;
+		_month = month;
+		_day = day;
+	}
+void Display()
+	{
+		cout<<_year<<"-"<<_month<<"-"<<_day<<endl;
+	}
+
+	bool operator == (const Date& d)
+	{
+		return this->_year == d._year
+			&& this->_month == d._month
+			&& this->_day == d._day;
+	}
+
+	bool operator <(const Date& d)
+	{
+		if(this->_year < d._year)
+			return true;
+		if(this->_year == d._year)
+		{
+			if(this->_month<d._month)
+				return true;
+			if(this->_month == d._month)
+			{
+				if(this->_day < d._day)
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool operator >=(const Date& d)
+	{
+		return !(*this < d);
+	}
+	Date operator+(int day)
+	{
+	  int monthday=this->GetMonthDay(this->_year, this->_month);
+	  this->_day = this->_day + day;
+
+	  while(this->_day > monthday)
+	  {
+		  int tem = this->_day - monthday;
+		  this->_month++;
+		  if(this->_month == 12)
+		  {
+			  this->_year++;
+			  this->_month = 1;
+		  }
+		  monthday = this->GetMonthDay(this->_year, this->_month);
+		  this->_day = tem;
+	  }
+		  return (*this);
+	 
+	}
+Date operator+= (int day);
+
+Date operator-(int day)
+	{
+	  this->_day = this->_day - day;
+
+	  while(this->_day <= 0)
+	  {
+		  if(this->_month == 1)
+		  {
+			  this->_year--;
+			  this->_month = 12;
+		  }
+		  else this->_month--;
+		  int monthday=this->GetMonthDay(this->_year, this->_month);
+		  int tem = this->_day + monthday;
+		 
+		  this->_day = tem;
+	  }
+		  return (*this);
+	 
+	}
+
+	Date operator-= (int day);
+
+Date operator++()
+{
+	  int monthday=this->GetMonthDay(this->_year, this->_month);
+	  this->_day++;
+
+	  while(this->_day > monthday)
+	  {
+		  this->_month++;
+		  if(this->_month == 12)
+		  {
+			  this->_year++;
+			  this->_month = 1;
+		  }
+		  this->_day = 1;
+	  }
+		  return (*this);
+	 
+}
+
+Date operator++(int)  //后置   前置和后置的值一样，没找出原因。
+{
+	Date tem(*this);
+
+	int monthday=this->GetMonthDay(this->_year, this->_month);
+	this->_day ++;
+	while(this->_day > monthday)
+	 {
+		 this->_month++;
+		 if(this->_month == 12)
+		 {
+			 this->_year++;
+			 this->_month = 1;
+		 }
+		  this->_day = 1;
+	  }
+
+
+		  return tem;
+}
+
+Date operator--()//前置
+{
+	  this->_day --;
+
+	  while(this->_day == 0)
+	  {
+		  if(this->_month == 1)
+		  {
+			  this->_year--;
+			  this->_month = 12;
+		  }
+		  else this->_month--;
+		  int  monthday=this->GetMonthDay(this->_year, this->_month);
+		   this->_day = monthday;
+	  }
+		  return (*this);
+	 
+}
+
+Date operator--(int)
+{
+		Date tem(*this);
+
+		this->_day --;
+
+	  while(this->_day == 0)
+	  {
+		  if(this->_month == 1)
+		  {
+			  this->_year--;
+			  this->_month = 12;
+		  }
+		  else this->_month--;
+		  int  monthday=this->GetMonthDay(this->_year, this->_month);
+		   this->_day = monthday;
+	  }
+
+		  return tem;
+	 
+}
+
+	int operator-(const Date& d);
+
+private:
+	bool IsLeapYear(int year)
+	{
+		if((year%4 == 0 && year%100 !=0)
+			|| year%400 == 0)
+			return true;
+		
+		return false;
+	}
+
+	int GetMonthDay(int year, int month)
+	{
+		int monthArray[13] = {0, 31, 28, 31, 30,31,30,31,31,30,31,30,31};
+
+		int day = monthArray[month];
+
+		if (month == 2 && IsLeapYear(year))
+		{
+			day += 1;
+		}
+
+		return day;
+	}
+
+private:
+	int _year;
+	int _month;
+	int _day;
+
+};
+
+void Test()
+{
+	Date d(2000,4,10);
+	d.Display();
+	--d;
+	d.Display();
+	d = d - 100;
+	d.Display();
+
+}
+
+int main()
+{
+	Test();
+	system("pause");
+	return 0;
+	
+}
