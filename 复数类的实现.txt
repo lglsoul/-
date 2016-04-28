@@ -1,0 +1,79 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include <iostream>
+using namespace std;
+
+class Complex
+{
+public:
+	void Display()
+	{
+		cout<<_real<<"+"<<_image<<"i"<<endl;
+	}
+
+	Complex(double real =1,double image = 1)
+	{
+		_real = real;
+		_image = image;
+	}
+
+	~Complex()
+	{
+		cout<<"虚构函数"<<endl;
+		_real = 0;
+		_image = 0;
+	}
+	Complex operator+(Complex d)
+	{
+		d._real = this->_real + d._real;
+		d._image = this->_image + d._image;
+		return d;
+	}
+	Complex operator-(Complex d)
+	{
+		d._real = this->_real - d._real;
+		d._image = this->_image - d._image;
+		return d;
+	}
+
+	Complex operator*(Complex d)
+	{
+		d._real = this->_real * d._real -this->_image * d._image;
+		d._image = this->_real * d._image + this->_image * d._real;
+		return d;
+	}
+
+	bool operator==(Complex d)
+	{
+		if(sqrt(this->_real*this->_real+this->_image*this->_image)
+			==  sqrt(d._real*d._real+d._image*d._image))
+			return true;
+
+		return false;
+	}
+
+private:
+	double _real;
+	double _image;
+};
+
+void Test1()
+{
+	Complex d1;
+	Complex d2(d1);
+	//d1.Display();
+	//d2.Display();
+	Complex ret = d1 * d2;
+	ret.Display();
+	//bool tem = d1==d2;
+	//if(tem)
+	//{
+		//cout<<"相等"<<endl;
+	//}
+}
+
+int main()
+{
+	Test1();
+	system("pause");
+	return 0;
+}
