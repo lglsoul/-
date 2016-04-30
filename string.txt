@@ -1,0 +1,125 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+
+#include<iostream>
+using namespace std;
+
+class String
+{
+public:
+	String(char* str = "")
+		:_str(new char[strlen(str)+1])
+	{
+		strcpy(_str,str);
+	}
+	/*String(char* str = "")
+		:_str(new char[strlen(str)+1])
+	{
+		
+		swap(_str,str);
+
+     }*/
+
+	String(String& s)
+		: _str(new char[(strlen(s._str)+1)])
+	{
+		
+		strcpy(_str,s._str);
+	}
+
+
+	String& operator=(const String& s)
+	{
+		if(_str == s._str)
+			return *this;
+		
+		delete[]_str;
+		_str = new char[strlen(s._str)+1];
+		strcpy(_str,s._str);
+		return *this;
+
+	}
+
+
+	
+	~String()
+	{
+		
+		delete[] _str;
+	}
+
+	
+	String operator+(const String& str1, const String& str2)
+	{
+		String  temp;
+		delete[] temp._str;
+		temp._str = new char[strlen(str1._str)+strlen(str2._str)+1];
+		strcpy(temp._str,str1._str);
+		strcat(temp._str,str2._str);
+		return temp;
+
+	}
+
+private:
+	char*  _str;
+};
+
+#include<iostream>
+using namespace std;
+
+class String
+{
+public:
+	
+	String(char* str = "")
+       :_str(new char[(strlen(s._str)+1)])  
+       : _refcount(new int(1))
+	{
+		_str=str;
+     }
+
+	String(const String& s)
+		: _str(new char[(strlen(s._str)+1)])
+	{
+		_str = s._str;
+                _refcount =s. _refcount;
+                *_refcount++;
+               
+	}
+
+	
+	~String()
+	{
+		if(--_refcount == 0)
+               {
+		delete[] _str;
+                delete[] __refcount;
+               }
+	}
+
+
+private:
+	char*  _str;
+        int*   _refcount;
+};
+
+void Test1()
+{
+	String s1("s1");
+	String s2(s1);
+	String s3("xxxx");
+	printf("%s\n",s1);
+	printf("%s\n",s2);
+	printf("%s\n",s3);
+	s1 = s3;
+	printf("%s\n",s1);
+	printf("%s\n",s2);
+	printf("%s\n",s3);
+
+
+
+}
+int main()
+{
+	Test1();
+	system("pause");
+}
