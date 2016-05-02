@@ -1,0 +1,139 @@
+#include<iostream>
+using namespace std;
+#include<assert.h>
+#include<stack>
+
+
+struct Pos
+{
+	int _row;
+	int _col;
+	Pos(int row,int col)
+		:_row(row)
+		,_col(col)
+	{
+	}
+
+};
+bool JudgeMazePahh(int* a, int n, Pos enrty,
+					stack<Pos>& pasths);
+
+void   Mazemap(int* a,int n)
+{
+	assert(a);
+	FILE* s = fopen("C:\\Users\\lglzh200\\Desktop\\Mazemap.txt","r");
+	assert(s);
+	
+	for(int i=0; i<n; i++)
+	{
+        for(int j=0; j<n;)
+		{
+			char ch =fgetc(s);
+         if(ch == '1' || ch == '0')
+	      {
+		
+		   a[i*n+j] = ch - '0';
+			j++;
+	      }
+		 else
+		 {
+			 continue;
+		 }
+		 
+		}
+	
+	}
+		
+
+}
+bool SearchMazePahh(int* a, int n, Pos enrty,
+					stack<Pos>& pasths)
+{
+	assert(a);
+	pasths.push(enrty);
+	while(!pasths.empty())
+	{
+		Pos cur = pasths.top();
+       a[cur._row*n+cur._col] = 2;
+		if(cur._row == n -1)
+		{
+			return true;
+		}
+    
+		Pos next = cur;
+
+		 next = cur;  //иоб╥
+		next._row--;
+		JudgeMazePahh(a,n,next,pasths);
+
+		 next = cur;  //об
+		next._row++;
+		if(JudgeMazePahh(a,n,next,pasths))
+		{
+			continue;
+		}
+
+		 next = cur;  //вС
+		next._col--;
+		if(JudgeMazePahh(a,n,next,pasths))
+		{
+			continue;
+		}
+
+		 next = cur;  //ср
+		next._col++;
+		if(JudgeMazePahh(a,n,next,pasths))
+		{
+			continue;
+		}
+
+		pasths.pop();
+	}
+	return false;
+}
+
+bool JudgeMazePahh(int* a, int n, Pos enrty,
+					stack<Pos>& pasths)
+{
+	assert(a);
+	if((enrty._row >=0 || enrty._row<n || enrty._col>=0 || enrty._col < n )        &&a[enrty._row * n + enrty._col] == 0)
+	{
+		pasths.push(enrty);
+		return true;
+	}
+	else
+	{
+
+		return false;
+	}
+}
+
+
+void PrintMaze(int *a, int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+       for (int j = 0; j < n; j++)
+        {
+            cout << a[i*n + j] << " ";
+        }
+        cout << endl;
+    }
+    cout << endl;
+}
+
+
+
+//int main()
+//{
+//	int a[10][10];
+//	Pos frise(2,0);
+//	stack<Pos> s;
+//	Mazemap((int*)a,10);
+//	PrintMaze((int*)a,10);
+//	SearchMazePahh((int*)a,10,frise,s);
+//	PrintMaze((int*)a,10);
+//	system("pause");
+//	return 0;
+//
+//}
