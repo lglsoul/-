@@ -1,0 +1,162 @@
+#include<iostream>
+#include<queue>
+using namespace std;
+
+//template<class T>
+//class Stack
+//{
+//public:
+//	Stack()
+//		:_arr1(NULL)
+//		,_size1(0)
+//		,_capacity(0)
+//	{}
+//	~Stack()
+//	{
+//		delete[] _arr1;
+//	}
+//	void Push(T x)
+//	{
+//		CleckCap();
+//      
+//		_arry[_size++] = x;
+//	}
+//
+//	T Top()
+//	{
+//		return _arry[_size-1];
+//	}
+//
+//
+//	void Empty()
+//	{
+//		_size = 0;
+//	}
+//
+//	void Pop()
+//	{
+//		_size--;
+//	}
+//
+//private:
+//	T* _arry;
+//	size_t _size;
+//	size_t _capacity;
+//
+//private:
+//	void CleckCap()
+//	{
+//		if(_size == 0)
+//		{
+//			_capacity = 10;
+//			_arry = new T[_capacity];
+//		}
+//		
+//			if(_size >= _capacity)
+//		{
+//			_capacity = _capacity * 2;
+//			T* tem = new T[_capacity];
+//			for(size_t i = 0; i<_size; i++)
+//			{
+//				tem[i] = _arry[i];
+//			}
+//        
+//
+//			delete[] _arry;
+//			_arry = tem;
+//		}
+//
+//      
+//};
+
+
+template<class T>
+class Stack
+{
+public:
+	Stack(void)
+	{}
+
+	~Stack(void)
+	{
+	}
+
+	void Push(const T x)
+	{
+		if(_a.size() == 0 && _b.size() == 0)
+		_a.push(x);
+		else if(_a.size() != 0 && _b.size() == 0)
+			_a.push(x);
+		else
+			_b.push(x);
+
+	}
+
+	void Pop()
+	{
+		if(_a.size() == 0 && _b.size() == 0)
+			return;
+
+     if( _a.size() ==1)
+			{
+				_a.pop();
+				return ;
+			}
+	   if( _b.size() ==1)
+			{
+				_b.pop();
+				return ;
+			}
+
+	if(_a.size()&&_b.size() == 0)
+	{
+			while(_a.size())
+			{
+				_b.push(_a.front());
+			    _a.pop();
+
+				if( _a.size() ==1)
+			{
+				_a.pop();
+				return ;
+			}
+
+	     }	
+	}
+
+	if(_b.size()&&_a.size() == 0)
+	{
+			while(_b.size())
+			{
+				_a.push(_b.front());
+			    _b.pop();
+
+		 if( _b.size() ==1)
+			{
+				_b.pop();
+				return ;
+			}
+
+	     }	
+	}
+	}
+
+private:
+	queue<T> _a;
+	queue<T> _b;
+};
+
+int main()
+{
+	
+	Stack<int> s;
+	s.Push(1);
+	s.Push(2);
+	s.Push(3);
+	s.Push(4);
+	s.Push(5);
+	s.Pop();
+	s.Pop();
+	system("pause");
+	return 0;
+}

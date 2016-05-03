@@ -1,0 +1,46 @@
+解决出入栈问题
+#include<iostream>
+#include<cmath>
+#include<stack>
+#include<sstream>
+#include<cstring>
+using namespace std;
+
+bool judge(char *sour, char *dest)
+{
+    stack<char> ss;
+    if(strlen(sour)!=strlen(dest))//如果2个序列的长度不一致，自然无法产生合适的出栈序列
+        return false;
+    ss.push(*sour++);//第一个元素入栈
+    while(*dest != '\0')//如果出栈序列没有匹配完
+    {
+
+        if(ss.empty() && *sour!='\0')//目前出栈和入栈序列是匹配的，则栈已空，如果sour不为空，继续入栈
+            ss.push(*sour++);
+        while(*dest != ss.top()&&*sour != '\0')//如果栈顶元素和出栈序列第一个元素不一致，那么就将入栈序列继续入栈
+        {
+            ss.push(*sour++);
+            //sour++;
+        }
+        if(*dest == ss.top())//如果栈顶元素和出栈序列第一个元素一致，那么就将栈顶元素出战，并且匹配出栈序列下一个元素
+        {
+            dest++;
+            ss.pop();
+            continue;
+        }
+        if(*sour == '\0'&& ss.top()!=*dest)//如果入栈序列为空，但是栈顶元素和出栈序列第一个元素扔不一致，则说明这2个串不是匹配的。
+        {
+            return false;
+        }
+    }
+    return true;   
+}
+
+int main()
+{
+    char *str ="12345";
+    char *str2 = "32154";
+    cout<<judge(str,str2);
+    system("pause");
+    return 0;
+}

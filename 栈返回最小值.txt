@@ -1,0 +1,122 @@
+返回最小值
+#include<iostream>
+#include<stack>
+using namespace std;
+
+template<class T>
+class Stack
+{
+public:
+	Stack()
+		:_arry(NULL)
+		,_min(NULL)
+		,_size(0)
+		,_capacity(0)
+		,_min_size(0)
+	{}
+	~Stack()
+	{
+		delete[] _arry;
+		delete[] _min;
+	}
+	void Push(T x)
+	{
+		CleckCap();
+        if(_size == 0)
+		{
+			_arry[_size++] = x;
+			_min[_min_size++] = x;
+		}
+		else
+		{
+			_arry[_size++] = x;
+			if(_min[_min_size-1] >= x)
+			{
+				_min[_min_size++] = x;
+			}
+		}
+	}
+
+	T Top()
+	{
+		return _arry[_size-1];
+	}
+
+	T MIN()
+	{
+		return _min[_min_size];
+	}
+
+	void Empty()
+	{
+		_size = 0;
+	}
+
+	void Pop()
+	{
+		if(Top() == _min[_min_size-1])
+			_min_size -=2;
+
+		_size--;
+	}
+
+private:
+	T* _arry;
+    T* _min;
+	size_t _size;
+	size_t _capacity;
+	size_t _min_size;
+
+private:
+	void CleckCap()
+	{
+		if(_size == 0)
+		{
+			_capacity = 10;
+			_arry = new T[_capacity];
+			_min = new T[(_capacity/2)];
+		}
+		
+		if(_size >= _capacity)
+		{
+			_capacity = _capacity * 2;
+			T* tem = new T[_capacity];
+			for(size_t i = 0; i<_size; i++)
+			{
+				tem[i] = _arry[i];
+			}
+
+			delete[] _arry;
+			_arry = tem;
+		}
+
+		if(_min_size >= (_capacity/2))
+		{
+           T* Tmin = new T[_capacity];
+		   for(size_t i = 0; i<_min_size; i++)
+			{
+				Tmin[i] = _min[i];
+			}
+              delete[] _min;
+               _min = Tmin;
+		}
+
+	}
+
+};
+
+int main()
+{
+	Stack<int> s;
+	s.Push(2);
+	s.Push(3);
+	s.Push(1);
+	s.Push(5);
+	s.Push(6);
+	s.Push(4);
+	s.Push(0);
+	s.Pop();
+	cout<<s.MIN();
+	system("pause");
+	return 0;
+}
