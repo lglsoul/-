@@ -1,0 +1,474 @@
+.h
+#include<iostream>
+#include<assert.h>
+using namespace std;
+typedef long long INT;
+#define MIN 0x8000000000000000
+#define MAX 0x7FFFFFFFFFFFFFFF
+
+class BigData
+{
+public:
+	BigData(INT value);
+	BigData(const char* str);
+
+	BigData operator+(const BigData bigdata);
+	BigData operator-(const BigData bigdata);
+	BigData operator*(const BigData bigdata);
+	BigData operator/(const BigData bigdata);
+
+	friend std::ostream&  operator<<(std::ostream& _cout,const BigData& bigdata)
+	{
+		if(bigdata.OverBreak())
+		{
+			cout<<bigdata._value<<endl;
+		}
+		else
+		{
+			char *pData = (char*)bigdata._str.c_str();
+			if('+'== pData[0])
+		{
+			pData++;
+		}
+		_cout<<pData<<endl;
+		}
+		return _cout;
+	}
+
+private:
+	INT _value;
+	string _str;
+
+private:
+	bool OverBreak()const
+	{
+		string tem("+9223370236854775807");
+		if(_str[0] == '-')
+		{
+			tem = "-9223370236854775808";
+		}
+
+		if(_str.size() < tem.size())
+		{
+			return true;
+		}
+		else if(_str.size() == tem.size() && _str.compare(tem) < 0)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	bool IsLeftStrBig(const char* pleft,int Lsize,
+		               const char* pRight,int Rsize)
+	{
+		if((Lsize >Rsize )||
+			(Lsize=Rsize && strcmp(pleft,pRight)>=0))
+			return true;
+
+		return false;
+	}
+
+	char Subconst(char* pleft,int Lsize,
+		               const char* pRight,int Rsize)
+	{
+		char Ret = '0';
+		assert(pleft != NULL && pRight != NULL);
+			while(true)
+			{
+				if(!IsLeftStrBig( pleft,Lsize,pRight,Rsize))
+				break;
+
+				int LData = Lsize -1;
+				int RData = Rsize -1;
+				while(LData>0 && RData>0)
+				{
+					char ret = pleft[LData] -'0';
+					ret -= pleft[RData]- '0';
+					if(ret<0)
+					{
+                      pleft[LData-1]  -= 1;
+					  ret += 10;
+					}
+					pleft[LData] = ret + '0';
+					LData--;
+					RData--;
+				}
+				
+				while(*pleft == '0' &&Lsize > 0 )
+				{
+					pleft++;
+					Lsize--;
+				}
+				Ret++;
+			}
+			return Ret;
+	}
+	std::string Add(std::string str1,std::string str2);
+	std::string Sub(std::string str1,std::string str2);
+	std::string Mul(std::string str1,std::string str2);
+	std::string DIV(std::string str1,std::string str2);
+	
+};
+
+
+
+
+.cpp
+#define _CRT_SECURE_NO_WARNINGS 1
+#include"BigData.h"
+
+BigData::BigData(INT value = 0xCCCCCCCCCCCCCCCC)
+	:_value(value)
+{
+	char cycol ='+';
+	if(value<0)
+	{
+		cycol = '-';
+	}
+	_str.append(1,cycol);
+	INT tem = value;
+	while(tem)
+	{
+		char str = tem%10 +'0';
+		_str.append(1,str);
+		tem = tem/10;
+	}
+	char *first = (char*)_str.c_str()+1;
+	char *end = (char*)first+_str.size()-2;
+	while (first<end)
+	{
+		char tem = *first;
+		*first++ = *end;
+		*end-- = tem;
+	}
+
+}
+
+BigData::BigData(const char* str)
+{
+	if(NULL == str)
+	{
+		assert(str);
+		return;
+	}
+
+	char *pstr = (char*)str;
+	char cYsbol = str[0];
+	if(cYsbol =='+' || cYsbol == '-')
+	{
+	   pstr++;
+	}
+	else if(cYsbol >= '0' && cYsbol <= '9')
+	{
+		cYsbol = '+';
+	}
+	else return;
+
+	while(*pstr == '0')
+	{
+		pstr++;
+	}
+
+	_str.resize(strlen(str)+1);
+	_str[0] = cYsbol;
+	int count = 1;
+	_value = 0;
+	while((*pstr <= '9') && (*pstr >= '0'))
+	 {
+		_value = _value*10 + (*pstr - '0');
+		_str[count++] = *pstr;
+		pstr++;
+	 }
+	_str.resize(count);
+	if(cYsbol == '-')
+	{
+		_value = 0 -_value;
+	}
+ 
+}
+
+BigData BigData::operator+(const BigData bigdata)
+{
+		if(this->OverBreak() && bigdata.OverBreak())
+		{
+			if(_str[0] != bigdata._str[0])
+			return  BigData(_value + bigdata._value);
+			else
+		  {  //
+             INT max = MAX- _value;
+		     INT min = MIN- _value;
+		     if((_value>0 && max >= bigdata._value)
+			|| (_value<0&& min <= bigdata._value))
+			return  BigData(_value + bigdata._value);
+		  }
+		}
+		
+		if(_str[0] == bigdata._str[0])
+			return BigData(Add(_str,bigdata._str).c_str());
+
+
+		return BigData(Sub(_str,bigdata._str).c_str());
+
+}
+
+
+std::string BigData::Add(std::string str1,std::string str2)
+{
+		int left = str1.size();
+		int right = str2.size();
+		if(left < right)
+		{
+			std::swap(str1,str2);
+			std::swap(left,right);
+		}
+
+		std::string ret;
+		ret.resize(left+1);
+		ret[0] =str1[0];
+		INT idx= 1;
+		char cry = 0;
+		for(idx=1;idx<left;idx++)
+		{
+			char tem = str1[left-idx] - '0'+cry;
+			if(idx < right)
+				tem += (str2[right-idx] - '0');
+
+			ret[left-idx+1] =  tem%10 +'0';
+			cry = tem/10;
+		}
+
+		ret[1] = cry + '0';
+		return ret;
+	}
+
+
+BigData BigData::operator-(const BigData bigdata)
+{
+	if(this->OverBreak() && bigdata.OverBreak())
+		{
+			if(_str[0] == bigdata._str[0])
+			  return  BigData(_value - bigdata._value);
+
+          else
+		  {  //-1  - 2>= 4
+			  // -1>= 4+2
+             INT max = MAX+bigdata._value;
+		    INT min = MIN + bigdata._value;
+		    if((_value>0 && max >=_value)
+			  || (_value<0&& min <= _value))
+			  return  BigData(_value - bigdata._value);
+		  }
+		}
+      //
+		
+		if(_str[0] != bigdata._str[0])
+			return BigData(Add(_str,bigdata._str).c_str());
+
+		return BigData(Sub(_str,bigdata._str).c_str());
+}
+
+string BigData::Sub(string str1,string str2)
+	{
+		int left = str1.size();
+		int right = str2.size();
+		if(left < right 
+			|| (left == right && str1.compare(str2)<0))
+		{
+			std::swap(str1,str2);
+			std::swap(left,right);
+		}
+
+		std::string ret;
+		ret.resize(left);
+		ret[0] =str1[0];
+		INT idx= 1;
+		for(idx=1;idx<left;idx++)
+		{
+			char tem = str1[left-idx] - '0';
+			if(idx < right)
+		 { 	
+			tem -= (str2[right-idx] - '0');
+			if(tem < 0)
+			{
+				str1[left-idx-1] -=1;
+				tem += 10;
+			}
+		  }
+			ret[left-idx] =  tem +'0';	
+		}
+		return ret;
+	}
+
+BigData BigData::operator*(const BigData bigdata)
+{
+	if(_value == 0 || bigdata._value == 0)
+		return  BigData(INT(0));
+
+	if(this->OverBreak() && bigdata.OverBreak())
+		{
+			if(_str[0] == bigdata._str[0] && MAX/bigdata._value>=_value)
+			  return  BigData(_value * bigdata._value);
+
+          else
+		  {  
+             INT max = MIN/bigdata._value;
+		     INT min = MIN / bigdata._value;
+		       if((_value>0 && max >=_value)
+			     || (_value<0&& min <= _value))
+			  return  BigData(_value * bigdata._value);
+		  }
+		}
+      //
+		return BigData(Mul(_str,bigdata._str).c_str());
+}
+string BigData::Mul(std::string str1,std::string str2)
+{
+	    int left = str1.size();
+		int right = str2.size();
+		if(left > right 
+			|| (left == right && str1.compare(str2)>0))
+		{
+			std::swap(str1,str2);
+			std::swap(left,right);
+		}
+
+		std::string ret;
+		ret.resize(left+right-1);
+
+		if(str1[0] == str2[0])
+			ret[0] = '+';
+		else
+			ret[0] = '-';
+		int counts= ret.size();
+		ret.assign(counts,'0');
+		INT count = 0;
+		INT idx= 1;
+		for(idx=1;idx<left;idx++)
+		{
+			char tem = str1[left-idx] - '0';
+			char cry = 0;
+			if(tem == 0)
+			{
+				count++;
+				continue;
+			}
+			for(INT IDX = 1;IDX<right; IDX++)
+			{
+				char cret= tem *(str2[right-IDX] - '0')+ cry;
+				cret+=ret[counts-IDX-count] - '0';
+				ret[counts-IDX-count] = cret % 10  +'0';
+				cry = cret/10;
+			}
+			ret[counts-idx-count] += cry + '0';
+			count++;
+		}
+
+		return ret;
+}
+
+
+BigData BigData::operator/(const BigData bigdata)
+{
+	if(bigdata._str[1] == '0')
+		assert(false);
+	if(bigdata._str[1] == '1'  && bigdata._str.size() <= 2)
+	{
+		if(_str[0] !=bigdata._str[0])
+			_str[0] = '-';
+
+            return *this;
+	}
+	if(_str[1] == '0'|| _str.size()<bigdata._str.size())
+		return BigData(INT(0));
+
+	if(this->OverBreak() && bigdata.OverBreak())
+			return  BigData(_value / bigdata._value);
+
+	else
+		return  BigData(DIV(_str,bigdata._str).c_str());
+}
+
+
+string BigData::DIV(std::string str1,std::string str2)
+{
+		string ret;
+		ret.append(1,'+');
+		if(str1[0] != str2[0])
+			ret[0] = '-';
+		char* pleft = (char*)(str1.c_str()+1);
+		char* pRight = (char*)(str2.c_str()+1);
+		int Lsize = str1.size()-1;
+		int Datelen = str2.size()-1;
+		
+		for(int indix = 0; indix<Lsize;)
+		{
+			if(*pleft == '0')
+			{
+           ret.assign(1,'0');
+			pleft++;
+			indix++;
+			continue;
+			}
+			if(!IsLeftStrBig(pleft,Datelen,pRight,str2.size()))
+		  {
+			ret.append(1,'0');
+			Datelen++;
+
+			if(Datelen +indix>Lsize)
+				break;
+		  }
+			else
+			{
+			ret.append(1,Subconst(pleft,Datelen,pRight,str2.size()));
+			while(*pleft == '0'&& Datelen >0)
+			{
+				pleft++;
+				indix++;
+				Datelen--;
+			}
+			Datelen++;
+			}
+		}
+		
+	return ret;
+		
+		
+}
+
+void Test()
+{
+	/*BigData b("9223370236854775807");
+	BigData a("2948229348394843948");
+	BigData c = a+b;
+	cout<<c<<endl;*/
+	//BigData b(123);
+	//BigData a(23);
+	//BigData c = a-b;
+	//cout<<c<<endl;
+
+	//BigData b(-123);
+	//BigData a(23);
+	//BigData c = a-b;
+	//cout<<c<<endl;
+
+	/*BigData b(9223370236854775809);
+	BigData a(9223370236854775807);
+	BigData c = a-b;
+	cout<<c<<endl;*/
+	BigData b("9223370236854775809");
+	BigData a("9");
+	BigData c = a*b;
+	cout<<c<<endl;
+}
+
+
+
+int main()
+{
+	Test();
+	system("pause");
+	return 0;
+	
+}
