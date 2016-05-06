@@ -1,0 +1,211 @@
+#include<assert.h>
+#include<iostream>
+using namespace std;
+
+enum Type
+{
+	HEAD,
+	VALUE,
+	SUB,
+};
+
+struct GeneralizedNode
+{
+	Type _type;
+	GeneralizedNode* _next;
+
+	union
+	{
+		int _value;
+		GeneralizedNode* _subLink;
+	};
+
+	GeneralizedNode(Type type = HEAD, int value = 0)
+		:_type(type),
+		_next(NULL)
+	{
+		if(_type == VALUE)
+			_value = value;
+		if(_type == SUB)
+			_subLink = NULL;
+	}
+};
+
+class Generalized
+{
+public:
+	Generalized()
+		:_head(NULL)
+	{}
+
+	Generalized(const char* str)
+		:_head(NULL)
+	{
+		_head = _CreateList(str);
+	}
+
+	Generalized(Generalized* g)
+	{
+		swap(_head,g->_head);
+	}
+
+	~Generalized()
+	{
+		if(_head)
+		 Del();
+	}
+	void Print()
+	{
+		_Print(_head);
+	}
+	size_t Size()
+	{
+		return _Size(_head);
+	}
+
+
+	size_t Depth()
+	{
+		return _Depth(_head);
+	}
+
+	Generalized& operator=(Generalized* X)
+	{
+		swap(_head,X->_head);
+	}
+
+	void Del()
+	{
+		_Del(_head);
+	}
+
+protected:
+	size_t _Depth(GeneralizedNode* head)
+	{
+		size_t depth = 1;
+		GeneralizedNode* cur = head;
+		while(cur)
+		{
+              if(cur->_type == SUB)
+			{
+				size_t sublink =1;
+				sublink += _Depth(cur->_subLink);
+				if(sublink+1 > depth)
+					depth = sublink;
+			}
+			  cur = cur->_next;
+		}
+		return depth;
+	}
+
+	size_t _Size(GeneralizedNode* head)
+	{
+		size_t size = 0;
+		GeneralizedNode* cur = head;
+		while(cur)
+		{
+              if(cur->_type == SUB)
+			{
+				size+=_Size(cur->_subLink);
+			}
+			  else if(cur->_type == VALUE)
+			  {
+				  size++;
+			  }
+			  cur = cur->_next;
+		}
+		return size;
+	}
+	void _Print(GeneralizedNode* head)
+	{
+		GeneralizedNode* cur = head;
+		while(cur)
+		{
+			if(cur->_type == HEAD)
+				cout<<"(";
+			else if(cur->_type == VALUE)
+			{
+               cout<<cur->_value;
+			   if(cur->_next != NULL)
+				   cout<<",";
+			}
+			else if(cur->_type == SUB)
+			{
+				_Print(cur->_subLink);
+				if(cur->_next != NULL)
+				   cout<<",";
+			}
+			else
+			{
+			   if(cur->_next != NULL)
+				   cout<<",";
+			}
+			cur = cur->_next;
+		}
+		cout<<")";
+	}
+
+	GeneralizedNode* _CreateList(const char*& str)
+	{
+		assert(*str == '(');
+		str++;
+		GeneralizedNode* head = new GeneralizedNode(HEAD,0);
+		GeneralizedNode* cur = head;
+		while (str)
+		{
+			if((*str>=0 && * str<= 9)
+			||(*str>='a'  && *str<='z')
+			||(*str>='A' && *str<='Z'))
+			{
+				cur->_next = new GeneralizedNode(VALUE,*str);
+				cur = cur->_next;
+				str++;
+			}
+			else if(*str == ')')
+			{
+				return head;
+
+			}
+			else if(*str == '(')
+			{
+				GeneralizedNode* tem  =new GeneralizedNode(SUB,*str);
+				cur->_next = tem;
+				tem->_subLink = _CreateList(str);
+				str++;
+				cur = cur->_next;
+			}
+			else
+		      str++;
+		}
+		assert(false);
+		return head;
+	}
+
+
+	void _Del(GeneralizedNode*& head)
+	{
+		GeneralizedNode* cur = head;
+		while(cur)
+		{
+			
+             GeneralizedNode* tem = cur;
+				cur= cur->_next;
+              if(cur->_type == SUB)
+			{
+				_Del(cur->_subLink);
+			}
+				delete tem;	
+		}
+	}
+protected:
+	GeneralizedNode* _head;
+};
+
+int main()
+{
+	Generalized s2("(a,b,(c,d),(e,(f),h))");
+	cout<<s2.Depth()<<endl;
+	cout<<s2.Size()<<endl;
+	system("pause");
+	return 0;
+}
