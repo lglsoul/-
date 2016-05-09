@@ -1,0 +1,163 @@
+#include<iostream>
+using namespace std;
+#include<assert.h>
+#include<stack>
+#include<vector>
+
+template<class T>
+struct Triple
+{
+	int _row;
+	int _col;
+	T _value;
+
+	Triple(int row, int col, T& value)
+		:_row(row)
+		,_col(col)
+		,_value(value)
+	{}
+};
+
+template <class T>
+class SparseMatrix
+{
+public:
+	SparseMatrix(T* a =0, int m=0, int n=0, T value=0)
+	{
+		for(int i = 0; i <m; i++)
+		{
+			for(int j = 0; j<n; j++)
+			{
+				if(a[i*n + j] != value)
+				{
+					Triple<T> str(i,j,a[i*n + j]);
+					_a.push_back(str);
+				}
+			}
+		}
+	}
+
+void Displiay(int m, int n, const T value)
+	/*{
+	    int size=0;
+		for (int i = 0; i < m;i++)
+        {
+        for (int j = 0; j < n; j++)
+        {
+			 if(size < _a.size())
+			 {
+			Triple<T> str = _a[size];
+
+			if(str._row == i && str._col ==j  && size<_a.size())
+			{
+				cout <<str._value<< " ";
+				size++;
+			}
+			else
+				{
+					cout<<value<<" ";
+				}
+			 }
+			else
+				{
+					cout<<value<<" ";
+				}
+        }
+        cout << endl;
+    }
+    cout << endl;
+	}*/
+	{
+		
+		for (int i = 0; i < m;i++)
+        {
+        for (int j = 0; j < n; j++)
+		{
+			int flag = 1;
+			for(int k =0; k<_a.size();k++)
+			{
+				Triple<T> str = _a[k];
+			if(str._row == i && str._col ==j)
+			{
+				
+				cout <<str._value<< " ";
+				flag =0;
+				break;
+			}
+
+			}
+
+			if(flag == 1)
+			cout<<value<<" ";
+		}
+        cout << endl;
+        }
+	}
+
+
+
+
+SparseMatrix<T>  Transport(T* a =0, int m=0, int n=0, T value=0)
+{
+	     _a.clear();
+		for(int i = 0; i <m; i++)
+		{
+			for(int j = 0; j<n; j++)
+			{
+				if(a[i*n + j] != value)
+				{
+					Triple<T> str(i,j,a[i*n + j]);
+					swap(str._row,str._col);
+					_a.push_back(str);
+					
+				}
+			}
+		}
+       /*SparseMatrix<T> tem;
+
+	if(size < _a.size())
+	  {
+           Triple<T> str = _a[size++];
+		    swap(str._row,str._col);
+			tem._a.push_back(str);
+	   }
+			 _a = tem._a; */
+       return *this;
+}
+
+SparseMatrix<T>  FastTransport()
+{
+
+}
+
+SparseMatrix operator&=(const SparseMatrix& s )
+{
+	if(int i = 0; i<s.size();i++)
+	{
+		_a[i] = s._a[i];
+	}
+}
+
+protected:
+vector<Triple<T>> _a;
+
+};
+
+int main()
+{
+	int a[6][5] =
+	{
+		{1,0,3,0,5},
+		{0,0,0,0,0},
+		{0,0,0,0,0},
+		{2,0,4,0,6},
+		{0,0,0,0,0},
+		{0,0,0,0,0},
+	};
+	SparseMatrix<int> s((int*)a,6,5,0);
+	s.Displiay(6,5,0);
+	s.Transport((int*)a,6,5,0);
+	s.Displiay(5,6,0);
+	system("pause");
+	return 0;
+}
