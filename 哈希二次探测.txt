@@ -1,0 +1,267 @@
+#include<string>
+#include<iostream>
+using namespace std;
+
+enum Status
+{
+	EXIST,
+	DELETE,
+	EMPTY,
+};
+
+template<class K, class V>
+struct KV 
+{
+	K _key;
+	V _value;
+
+	KV(const K& key =K(),const V& value =V())
+		:_key(key)
+		,_value(value)
+	{}
+};
+
+static  size_t BKDRHash(const char * str)
+{
+     
+     unsigned int hash = 0;
+     while (*str)
+    {
+         hash = hash * (*str) + (*str++);
+    }
+     return (hash & 0x7FFFFFFF);
+}
+template<class T>
+struct	HashOther
+{
+	size_t operator()(const T s1)
+	{
+		return (size_t)s1;
+	}
+};
+
+
+template<>
+struct	HashOther<string>
+{
+	size_t operator()(const string  s1)
+	{
+		return BKDRHash(s1.c_str());
+	}
+};
+
+
+template<class K, class V,
+class HashFun = HashOther<K>>
+class HashTable
+{
+public:
+	HashTable()
+		:_tables(new KV<K,V>[1])
+		,_status(new Status[1])
+		,_size(0)
+		,_capacity(size)
+	{
+		
+	}
+	HashTable(size_t size)
+		:_tables(new KV<K,V>[size])
+		,_status(new Status[size])
+		,_size(0)
+		,_capacity(size)
+	{
+		for(size_t i = 0; i < size; i++)
+		{
+			_status[i] = EMPTY;
+		}
+	}
+
+	~HashTable()
+	{
+		delete[] _tables;
+		delete[] _status;
+		_size = _capacity = 0;
+	}
+
+
+	HashTable(const HashTable<K,V>& s1)
+	{
+		_tables= new KV<K,V>[s1._capacity];
+		_status = new Status[s1._capacity];
+		_capacity = s1._capacity;
+		for(size_t i = 0; i < s1._capacity; i++)
+		{
+			if(s1._status[i] == EXIST)
+			{
+				_tables[i]._key = s1._tables[i]._key;
+				_tables[i]._value = s1._tables[i]._value;
+				_status[i] = s1._status[i];
+			}
+		}
+	}
+   HashTable<K,V> operator= (HashTable<K,V> s1)
+	{
+		swap(_tables,s1._tables);
+		swap(_status,s1._status);
+		swap(_capacity,s1._capacity);
+		swap(_size,s1._size);
+		return *this;
+	}
+
+	bool Insert(const K key, const V value)
+	{
+		_CheckExpand();
+		/*if(_size == _capacity)
+			return false;
+*/
+		size_t i = 1;
+		size_t indix =_HashOne(key,_capacity);
+		while(_status[indix] == EXIST )
+		{
+			if (_tables[indix]._key != key )    //∑¿÷πkey»ﬂ”‡  ∂¯≤ªƒ‹”√∑¿÷πvalue »ﬂ”‡
+            {
+               indix = _Hash(indix ,i,_capacity);
+
+            if(indix == _capacity)
+				indix = 0;
+
+			i++;
+            }
+			else
+				return false;
+
+
+		}
+		_tables[indix]._value = value;
+		_tables[indix]._key = key;
+		_status[indix] = EXIST;
+		++_size;
+
+		return true;
+	}
+
+	int Find(const K key)
+	{
+		size_t indix = _HashOne(key,_capacity);
+		size_t i = indix;
+		for(i = indix;i <= _capacity;)
+		{
+        if(_status[i] == EXIST && _tables[i]._key == key)
+			return i;
+
+		if(i == _capacity)
+		{
+               i = 0;
+			   continue;
+		}
+			
+		++i;
+		if(i == indix)
+			return -1;
+		}
+		return -1;
+	}
+
+	bool Removr(const K key)
+	{
+		int indix = Find(key);
+		if(indix = -1)
+			return false;
+		_status[indix] = DELETE;
+		return true;
+	}
+	
+
+	void Print()
+	{
+		for(int i = 0; i < _capacity; i++)
+		{
+			if(_status[i] == EXIST)
+			{
+				cout<<"i"<<i<<" ";
+				cout<<"key"<<_tables[i]._key<<" ";
+				cout<<"value"<<_tables[i]._value<<" ";
+				cout<<endl;
+			}
+			else if(_status[i] == DELETE)
+			{
+				cout<<"D:i="<<i;
+			}
+			else
+			{
+				cout<<"EM:i="<<i;
+			}
+			cout<<endl;
+		}
+	}
+protected:
+	void _CheckExpand()
+	{
+		if(_size * 10 == _capacity * 7)
+	{
+		HashTable<K,V> newtables(2 * _capacity);
+		
+		for(int i = 0; i < _capacity; i++)
+		{
+			int indix = _HashOne(_tables[i]._key,2 * _capacity);
+			indix = _Hash(indix,i,2 * _capacity);
+			newtables._tables[indix]._key = _tables[i]._key;
+			newtables._tables[indix]._value = _tables[i]._value;
+			newtables._status[indix] = _status[i];
+		}
+		swap(_tables,newtables._tables);
+		swap(_status,newtables._status);
+		swap(_capacity,newtables._capacity);
+	  }
+		return;
+	}
+
+	size_t _HashOne(const K& key,size_t capacity)
+	{
+		return HashFun()(key) % capacity;
+	}
+
+	 size_t _Hash(const K& key,size_t i,size_t capacity)
+	{
+		return (key + 2*i - 1)% capacity;
+	}
+
+private:
+	KV<K,V>* _tables;
+	Status* _status;
+	size_t _size;
+	size_t _capacity;
+};
+
+int main()
+{
+	HashTable<int,int> ht1(10);
+	ht1.Insert(89,10);
+	ht1.Insert(18,10);
+	ht1.Insert(49,10);
+	ht1.Insert(58,10);
+	ht1.Insert(9,10);
+	HashTable<int,int> ht2(10);
+	ht1.Insert(1,10);
+	ht1.Insert(1,10);
+	ht1.Insert(3,10);
+	ht1.Insert(4,10);
+	ht1.Insert(5,10);
+
+	ht2 = ht1;
+	
+	
+	//cout<<ht1.Find(9)<<endl;
+	//HashTable<int,int> ht2 = ht1;
+	//cout<<ht2.Find(9);
+	/*for(int i = 0; i < 10; i++)
+	{
+		ht1.insert(i,i);
+	}
+	ht1.print();*/
+	system("pause");
+	return 0;
+}
+
+
+
