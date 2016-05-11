@@ -1,0 +1,208 @@
+#include<iostream>
+#include<vector>
+using namespace std;
+
+template<class T>
+struct  Less
+{
+	bool operator()(const T& L,const T& R)
+	{
+	  return (L < R); 
+	}
+};
+template<class T>
+struct Oup
+{
+	bool operator()(const T& l,const T& R)
+	{
+		return (l > R);
+	}
+};
+
+template<class T,template<class>class Compare = Less>
+class Heap
+{
+public:
+	Heap()
+		:_a(NULL)
+	{}
+	Heap(const T* arry,size_t size)
+	{
+		_a.reserve(size);
+		for(int i=0;i<size;i++)
+		{
+			_a.push_back(arry[i]);
+		}
+		for(int i = _a.size()-2; i >= 0; i--)
+		{
+               _AdjustADD(i);
+		}
+		
+	}
+	Heap(const vector<T>& arry)
+	{
+		_a.reserve(arry.size());
+		for(int i=0;i<arry.size();i++)
+		{
+			_a.push_back(arry._a[i]);
+		}
+	}
+	void Push(const T& x)
+	{
+		_a.push_back(x);
+		_ADjust(_a.size()-1);
+	}
+	void Pop()
+	{
+		swap(_a[0],_a[_a.size()-1]);
+		_a.pop_back();
+		_AdjustADD(0);
+	}
+
+
+	T& GetTop()
+	{
+		return _a[0];
+	}
+
+	~Heap()
+	{}
+protected:
+	void _ADjust(size_t child)
+	{
+		Compare<T> con;
+		int parent = (child-1)/2;
+		while(parent>0)
+		{
+		if(con(_a[parent] ,_a[child]))
+		{
+			swap(_a[parent],_a[child]);
+			child = parent;
+			parent = (parent-1)/2;
+		}
+		else
+		break;
+		}
+	}
+	void _AdjustADD(size_t parent)
+	{
+		Compare<T> con;
+		int child = 2 * parent + 1 ;
+
+		while(child  < _a.size())
+		{
+		if(child+1 <_a.size() &&
+			con(_a[child+1] , _a[child]))
+			child++;
+
+		if(con(_a[child], _a[parent]))
+		{
+			swap(_a[parent],_a[child]);
+			parent = 2*parent+1;
+			child = 2*parent + 1 ;
+		 }
+		else
+		break;
+		}
+	}
+protected:
+	vector<T> _a;
+};
+
+
+int main()
+{
+	int a[] ={10,16,18,12,11,13,15,17,14,19};
+	Heap<int,Oup> s(a,10);
+	system("pause");
+	return 0;
+}
+
+
+
+//#include<iostream>
+//using namespace std;
+//
+//void GetKshu()
+//{
+//	int* arr = new int[100];
+//	for(int i =0;i<100;i++)
+//	{
+//		arr[i] = moneys[i];
+//	}
+//	ADjust(arr,100);
+//	for(int i =100;i<10000;i++)
+//	{
+//		if(arr[0]<moneys[i])
+//		{
+//			arr[0] = moneys[i];
+//			ADjust(arr,100);
+//		}
+//	}
+//	delete[] arr;
+//}
+//
+//void ADjust(int* a,size_t k)
+//{
+//	int child = k-1;
+//	int parent = (child-1)/2;
+//	while(parent>0)
+//	{
+//		if(child<k &&
+//			a[child]>a[child+1])
+//			++child;
+//		if(a[parent]>a[child])
+//		{
+//			swap(a[parent],a[child]);
+//			child = parent;
+//			parent = (child-1)/2;
+//		}
+//		else
+//			break;
+//	}
+//}
+//int main()
+//{
+//	system("pause");
+//	return 0;
+//}
+
+
+#include<iostream>
+using namespace std;
+void sort()
+{
+	int* a = new int[10];
+	int size = 10;
+	AdJust(a,10,0);
+	for(int i = 0;i<10 ;i++)
+	{
+		swap(a[0],a[size-i-1]);
+		AdJust(a,size-1-i,0);
+	}
+}
+
+void AdJust(int*a ,size_t size,size_t n)
+{
+	int child = 2*n +1;
+	int parent = n;
+	while(child <size)
+	{
+		if(child<size &&
+			a[child]<a[child+1])
+			++child;
+		if(a[parent]<a[child])
+		{
+			swap(a[parent],a[child]);
+			parent =child;
+			child = 2*parent + 1;
+		}
+		else
+			break;
+	}
+}
+
+int main()
+{
+	return 0;
+}
