@@ -1,0 +1,481 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+
+#include<assert.h>
+#include<string>
+#include<iostream>
+using namespace std;
+
+
+template<typename T>
+struct ListNode
+{
+	T  _data;
+	ListNode<T>* _next;
+	ListNode<T>* _prev;
+
+	ListNode(T x)
+		:_data(x),
+		_next(NULL),
+		_prev(NULL)
+	{
+	}
+};
+
+template<typename T>
+class SList
+{
+public:
+	SList()
+		:_head(NULL),
+		 _tail(NULL)
+	{
+	}
+
+	SList(const ListNode<T>& s)
+	{
+
+	}
+	~SList()
+	{
+		while(_head)
+		{
+		ListNode<T>* tem = _head;
+		_head = _head->_next;
+
+		delete tem;
+		}
+
+		_head = NULL;
+		_tail = NULL;
+	}
+
+	
+ ListNode<T>*  create(T x)
+	{
+		ListNode<T>* tem = new ListNode<T>(x);
+		assert(NULL != tem);
+
+		tem->_data = x;
+		tem->_next = NULL;
+		tem->_prev = NULL;
+		return tem;
+	}
+
+void PushBack(T x)
+{
+	if(_head == NULL)
+	{
+		_tail = _head = create(x); 
+	}
+	else
+	{
+		ListNode<T>* tem = _head;
+
+		while(tem->_next)
+		{
+			tem = tem->_next;
+		}
+
+		ListNode<T>* tail = create(x);
+		tem->_next = tail;
+		tail->_prev = tem;
+		_tail = tail;
+		
+	}
+}
+
+void PopBack()
+{
+	if(_head ==NULL)
+	{
+		return ;
+	}
+	else if(_head->_next == NULL)
+	{
+		delete _head;
+
+		_head = NULL;
+		_tail = NULL;
+	}
+	else
+	{
+		ListNode<T>* tem = _head;
+		_head = _head->_next;
+		delete tem;
+	}
+}
+
+void PushFront(T x)
+{
+	if(_head == NULL)
+	{
+		_head  = create(x); 
+	}
+	else
+	{
+		ListNode<T>* tem = create(x);
+		tem->_next = _head;
+		_head->_prev = tem;
+		_head = tem;
+
+	}
+}
+
+void Printf()
+{
+	ListNode<T>* tem = _head;
+	while(tem)
+	{
+		
+	cout<<tem->_data<<endl;
+	tem = tem->_next;
+	}
+
+	cout<<endl;
+
+}
+
+ListNode<T>* Find(T x)
+{
+	ListNode<T>* tem = _head;
+	while(tem)
+	{
+		if(tem->_data == x)
+			return tem;
+
+		tem = tem->_next;
+	}
+	cout<<"没有该数"<<endl;
+	return NULL;
+
+}
+
+void Reverse1()
+{
+		T tem;
+		ListNode<T>* begin = _head;
+		ListNode<T>* end = _tail;
+		while(begin != end->_next && begin != end)
+		{
+			tem = begin->_data;
+			begin->_data = end->_data;
+			end->_data = tem;
+
+			begin = begin->_next;
+
+			end = end->_prev;
+		}
+		
+}
+
+void Reverse2()
+{
+		ListNode<T>* begin = _head;
+		ListNode<T>* end = _tail;
+		
+		while(begin)
+		{
+			swap(begin->_next,begin->_prev);
+			begin = begin->_prev;
+		}
+		swap(_head,_tail);
+}
+
+void Unique()
+{
+	if(_head == NULL || _head->_next == NULL)
+		return ;
+
+
+     ListNode<T>* cur = _head;
+	
+	 while(cur->_next)
+	{
+	    ListNode<T>* second = cur->_next;
+
+		if((cur->_data) == (second->_data)  )
+		{
+          if(second->_next != NULL)
+		  {
+			ListNode<T>* tem = second;
+			second = second->_next;
+			cur->_next = second;
+			second->_prev = cur;
+			delete tem;
+		  }
+		  else
+		  {
+			  delete second;
+			  cur->_next = NULL;
+		  }
+
+		}
+		else
+		{
+         cur = cur->_next;
+		}
+         
+	}
+
+
+}
+
+void Merge(SList<T>& l)
+{
+	if(_head == NULL && l._head != NULL)
+	{
+		_head = l._head;
+	}
+
+	if(l._head == NULL)
+	{
+		return;
+	}
+
+	 ListNode<T>* cur1 = _head;
+	 ListNode<T>* cur2 = l._head;
+
+	 while(cur1 && cur2)
+	{
+		if(cur1->_data > cur2->_data)
+		{
+		
+			if(cur1 == _head)
+			{
+				ListNode<T>* tem = cur2;
+				l._head=cur2 = cur2->_next;
+				tem->_next = cur1;
+				cur1->_prev = tem;
+				tem->_prev = NULL;
+				_head = tem;
+				cur1 = _head->_next;
+			}
+			
+				ListNode<T>* tem = cur2;
+				l._head = cur2 = cur2->_next;
+				cur1->_prev->_next = tem;
+				tem->_next = cur1;
+				cur1->_prev = tem;
+				tem->_prev = cur1->_prev;
+				
+				
+		}
+		else
+		{
+			if(cur1->_next == NULL)
+			{
+				cur1->_next = cur2;
+				cur2->_prev = cur1;
+				l._head = l._tail = NULL; 
+				return;
+			}
+
+			cur1 = cur1->_next;
+		}
+	}
+
+}
+
+void Sort()
+{
+	if(_head == NULL || _head->_next == NULL)
+	{
+		return;
+	}
+	ListNode<T>* tail = _tail;
+
+	while(tail)
+	{
+		ListNode<T>* head = _head;
+
+		while(head != tail)
+		{
+		ListNode<T>* second = head->_next;
+
+		if(head->_data > second->_data)
+		{
+			T tem;
+			tem = head->_data;
+			head->_data = second->_data;
+			second->_data = tem;
+		}
+
+		head = head->_next;
+		}
+
+     tail = tail->_prev;
+		
+	}
+}
+ListNode<T>* Find(ListNode<T>* pos)
+{
+	ListNode<T>* cur = _head;
+	while(cur)
+	{
+		if(cur->_data == pos->_data)
+		{
+			return cur;
+		}
+
+		cur = cur->_next;
+	}
+	return NULL;
+}
+
+void Splice(ListNode<T>* pos, ListNode<T>* begin, ListNode<T>* end);
+void Splice(T x, SList<T>& l)
+{
+	ListNode<T>* pos = Find(x);
+	if(pos == NULL)
+	{
+		return;
+	}
+
+	if(l._head == NULL)
+	{
+		return;
+	}
+
+	ListNode<T>* next = pos->_next;
+	pos->_next = l._head;
+	l._head->_prev = pos;
+	l._tail->_next = next;
+	next->_prev = l._tail;
+	l._head = l._tail = NULL;
+	
+}
+
+
+protected:
+	ListNode<T>* _head;
+	ListNode<T>* _tail;
+
+};
+
+void Test()
+{
+	SList<int> s;
+	s.PushBack(1);
+	s.PushBack(2);
+	s.PushBack(3);
+	s.PushBack(4);
+	s.Printf();
+	s.PopBack();
+	s.Printf();
+	s.PopBack();
+	s.Printf();
+	s.PopBack();
+	s.Printf();
+	s.PopBack();
+	s.PopBack();
+	s.Printf();
+}
+
+void Test1()
+{
+	SList<int> s;
+	
+	s.Unique();
+	s.Printf();
+	s.PushBack(2);
+	s.Unique();
+	s.Printf();
+	s.PushBack(2);
+	s.PushBack(2);
+	s.Unique();
+	s.Printf();
+	s.PushBack(2);
+	s.PushBack(2);
+	s.PushBack(3);
+	s.PushBack(4);
+	s.Unique();
+	s.Printf();
+}
+
+void Test2()
+{
+	SList<int> s;
+	s.PushBack(1);
+	s.PushBack(2);
+	s.PushBack(3);
+	s.PushBack(4);
+	s.Printf();
+	cout<<endl;
+	ListNode<int>* tem=s.Find(1);
+	printf("%d",tem->_data);
+	cout<<endl;
+	ListNode<int>* tem1=s.Find(2);
+	printf("%d",tem1->_data);
+	cout<<endl;
+	ListNode<int>* tem2=s.Find(3);
+	printf("%d",tem2->_data);
+	cout<<endl;
+	ListNode<int>* tem3=s.Find(4);
+	printf("%d",tem3->_data);
+	cout<<endl;
+	ListNode<int>* tem4=s.Find(5);
+	cout<<endl;
+
+
+}
+
+
+void Test6()
+{
+	SList<int> s1;
+	s1.PushBack(1);
+	s1.PushBack(3);
+	s1.PushBack(5);
+	s1.PushBack(7);
+	SList<int> s2;
+	s2.PushBack(2);
+	s2.PushBack(4);
+	s2.PushBack(6);
+	
+	s1.Merge(s2);
+	s1.Printf();
+	s2.Printf();
+	
+}
+
+void Test3()
+{
+	SList<int> s1;
+	
+	s1.PushBack(1);
+	s1.PushBack(7);
+	s1.PushBack(2);
+	s1.PushBack(3);
+	ListNode<int>* pos = s1.Find(1);
+	ListNode<int>* ppos = s1.Find(4);
+	s1.Printf();
+	printf("%d",pos->_data);
+	printf("%d",ppos->_data);
+
+}
+
+void Test9()
+{
+	SList<int> s1;
+	s1.PushBack(1);
+	s1.PushBack(3);
+	s1.PushBack(5);
+	s1.PushBack(7);
+	SList<int> s2;
+	s2.PushBack(2);
+	s2.PushBack(2);
+	s2.PushBack(2);
+	s2.PushBack(2);
+	s1.Splice(3,s2);
+	s1.Printf();
+
+}
+
+int main()
+{
+	
+	Test9();
+	system("pause");
+	return 0;
+   
+}
