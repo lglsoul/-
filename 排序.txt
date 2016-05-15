@@ -1,0 +1,180 @@
+#include<assert.h>
+void InserSort(int * a,size_t size)   //÷±Ω”≤Â»Î≈≈–Ú
+{
+	assert(a);
+	for(int i = 1;i < size ; i++)
+	{
+		int tem = a[i];
+		int end = i - 1;
+		while( end >= 0 && a[end]>tem)
+		{
+			a[end+1] = a[end];
+			--end;
+		}
+		a[end+1] = tem;
+	}
+}
+void Print(int * a,size_t size)
+{
+	for(int i = 0; i < size;i++)
+	{
+		printf("%d->",a[i]);
+	}
+}
+void InserSortTest()
+{
+	int a[] = {2,5,4,9,3,6,8,7,1,0};
+	InserSort(a,sizeof(a)/sizeof(a[0]));
+	Print(a,sizeof(a)/sizeof(a[0]));
+}
+
+void ShellSort(int* a, size_t size)   //œ£∂˚≈≈–Ú
+{
+	assert(a);
+	int gap = size / 3;
+
+	while(gap > 1)
+  {
+	  gap = gap/3 + 1;
+	for(int i = 0;i < (size - gap);++i)
+	{
+		int end = i;
+		int tem = a[end + gap];
+		while( end >= 0 && a[end]>tem)
+		{
+			a[end+gap] = a[end];
+			end -= gap;
+		}
+		a[end+gap] = tem;
+	}
+  }
+}
+
+void ShellSortTest()
+{
+	int a[] = {2,5,4,9,3,6,8,7,1,0};
+	ShellSort(a,sizeof(a)/sizeof(a[0]));
+	Print(a,sizeof(a)/sizeof(a[0]));
+}
+
+
+void SelectiongSort(int* a, size_t size)
+{
+	assert(a);
+	int  min;
+    for (int i = 0; i < size ; i++)
+{
+       min = i;
+        for (int j = i + 1; j < size; j++)
+        if (a[j] < a[min])
+            min = j;
+        swap(a[i], a[min]);
+}
+
+}
+
+void SelectiongSortTest()
+{
+	int a[] = {2,5,4,9,3,6,8,7,1,0};
+	SelectiongSort(a,sizeof(a)/sizeof(a[0]));
+	Print(a,sizeof(a)/sizeof(a[0]));
+}
+void Adjust(int* a, int i, int size)
+{
+	assert(a);
+  
+	int parent = i;
+	int child = 2*i +1;
+	while(child < size)
+	{
+	if(child+1 < size && a[child+1]>a[child])
+		++child;
+
+	if(a[parent] < a[child])
+	{
+		swap(a[parent],a[child]);
+		parent  =child;
+		child = 2*parent +1;
+	}
+	else
+		break;
+	}
+}
+void HeapSort(int* a, size_t size)
+{
+	for(int i = (size-2)/2 ; i >0; --i)
+	   Adjust(a,i,size);
+
+	for(int i = 0;i<size; ++i)
+	{
+		swap(a[0],a[size-1-i]);
+		Adjust(a,0,size-i-1);
+	}
+	
+
+}
+
+
+
+void HeapSortTest()
+{
+	int a[] = {2,5,4,9,3,6,8,7,1,0};
+	HeapSort(a,sizeof(a)/sizeof(a[0]));
+	Print(a,sizeof(a)/sizeof(a[0]));
+}
+
+void BubbleSort(int* a,int size)
+{
+	for(int j= 0;j<size-1;j++)
+	for(int i = 0;i<size-j-1; i++)
+	{
+		if(a[i]>a[i+1])
+			swap(a[i],a[i+1]);
+	}
+}
+
+void BubbleSortTest()
+{
+	int a[] = {2,5,4,9,3,6,8,7,1,0};
+	BubbleSort(a,sizeof(a)/sizeof(a[0]));
+	Print(a,sizeof(a)/sizeof(a[0]));
+}
+int Min(int* a,int left,int right)
+{
+	int key = a[right];
+	int begin = left;
+	int end = right;
+	while(begin <end)
+	{
+		while(begin <end && a[begin] <=key)
+			begin++;
+        a[end] =a[begin];
+
+		while(begin <end && a[end] >=key)
+			end--;
+		a[begin] =a[end];
+
+		
+	}
+	a[begin] = key;
+	return begin;
+	
+}
+
+void QuickSort(int* a,int left ,int right)
+{
+	if(left >= right)
+		return;
+
+	int indix = Min(a,left,right);
+	QuickSort(a,left,indix-1);
+	QuickSort(a,indix+1,right);
+}
+
+void QuickSortTest()
+{
+	int a[] = {2,0,4,9,3,6,8,7,1,5};
+	QuickSort(a,0,sizeof(a)/sizeof(a[0])-1);
+	Print(a,sizeof(a)/sizeof(a[0]));
+}
+
