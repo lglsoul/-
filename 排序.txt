@@ -171,6 +171,219 @@ void QuickSort(int* a,int left ,int right)
 	QuickSort(a,indix+1,right);
 }
 
+//快速排序的非递归算法
+
+
+int RandPartition(int* a, int left , int right)  //三数取中
+{    
+	assert(a);
+	int mid = left + (right-left)/2;
+	if(a[left]<a[mid])
+	{
+		if(a[mid] < a[right])
+			return a[mid];
+		else if(a[left] > a[right])
+			return a[left];
+		else
+			return a[right];
+	}
+	else     //
+	{
+		if(a[mid]> a[right])
+			return a[mid];
+		else if(a[left] > a[right])
+			return a[right];
+		else
+			return a[left];
+
+	}
+}
+
+int SingleSort(int *arr, int left, int right)
+{
+       int cur = left;
+     int prev = cur - 1;
+ int key = RandPartition(arr, left, right);
+    swap(arr[right], key);//把key的值放到最右边
+ while (cur < right)
+      {
+           //++prev != cur防止自己和自己交换
+            if (arr[cur]<=arr[right] && ++prev != cur)
+         {
+                   swap(arr[prev], arr[cur]);
+          }
+
+           cur++;
+      }
+
+   swap(arr[++prev], arr[right]);
+      return prev;
+}
+
+void QuickSort_no(int* a,int left,int right)
+{
+	assert(a);
+     stack<int> s;
+     s.push(left);//压栈数组的左下标
+     s.push(right);//压栈数组的有下标
+    while (!s.empty())
+  {
+           int tmpRight = s.top();
+             s.pop();
+            int tmpLeft = s.top();
+              s.pop();
+            //把数组排序成左区间的数小于等于有区间的数
+			  int div = Mid1(a, tmpLeft, tmpRight);
+               //压栈左区间的左右两个数的下标
+            if (tmpLeft < div - 1)
+           {
+                   s.push(tmpLeft);
+                    s.push(div - 1);
+            }
+           //压栈右区间的左右两个数的下标
+             if (div + 1 < tmpRight)
+         {
+                   s.push(div + 1);
+                    s.push(tmpRight);
+           }
+   }
+  
+}
+
+
+void QuickSort(int* a,int left ,int right)  //快速排序
+{
+	if(right - left<13)
+		InserSort(a,right-left);
+	else
+	{
+	if(left >= right)
+		return;
+
+	int indix = Mid1(a,left,right);
+	QuickSort(a,left,indix-1);
+	QuickSort(a,indix+1,right);
+	}
+}
+
+void QuickSortTest()
+{
+	int a[] = {2,0,4,9,3,6,8,7,1,5};
+	QuickSort_no(a,0,sizeof(a)/sizeof(a[0])-1);
+	Print(a,sizeof(a)/sizeof(a[0]));
+}
+void mergearray(int a[], int first, int mid, int last, int temp[])  
+{  
+	assert(a);
+	assert(temp);
+    int i = first, j = mid + 1;  
+    int m = mid,   n = last;  
+    int k = 0;  
+      
+    while (i <= m && j <= n)  
+    {  
+        if (a[i] < a[j])  
+            temp[k++] = a[i++];  
+        else  
+            temp[k++] = a[j++];  
+    }  
+      
+    while (i <= m)  
+        temp[k++] = a[i++];  
+      
+    while (j <= n)  
+        temp[k++] = a[j++];  
+      
+    for (i = 0; i < k; i++)  
+        a[first + i] = temp[i];  
+}  
+
+void Merge(int* a,int left, int mid, int right, int* tem)
+{
+	assert(a);
+	assert(tem);
+	int i = 0;
+	int indix = mid+1;
+	int begin = left;
+	while(begin <= mid && indix <= right)
+	{
+		if(a[begin] > a[indix])
+			tem[i++] = a[indix++];
+		else
+			tem[i++] = a[begin++];
+	}
+	while(begin <= mid) 
+	tem[i++] = a[begin++];
+
+	while( indix <= right)
+		tem[i++] = a[indix++];
+
+	for(int j = 0; j < i;j++)
+	{
+		a[j+left] = tem[j];
+	}
+}
+
+void mergsort(int* a,int left, int right,int*  tem)
+{
+	assert(a);
+	assert(tem);
+	int mid;
+	if(left < right)
+	{
+		mid = (left + right)/2;
+		mergsort(a,left,mid,tem);
+		mergsort(a,mid+1,right,tem);
+		Merge(a,left,mid,right,tem);
+	}
+}
+
+bool MergeSort(int* a, int n)  
+{  
+	assert(a);
+    int *p = new int[n];  
+    if (p == NULL)  
+        return false;  
+    mergsort(a, 0, n - 1, p);  
+    delete[] p;  
+    return true;  
+}
+
+//非递归
+
+void merge_sort(int list[], int length)
+{
+	assert(list);
+        int i, left_min, left_max, right_min, right_max, next;  
+        int *tmp = (int*)malloc(sizeof(int) * length); 
+
+        if (tmp == NULL)
+		{  
+                printf("Error: out of memory\n");  
+        }  
+
+        for (i = 1; i < length; i *= 2)  
+                for (left_min = 0; left_min < length - i; left_min = right_max)
+				{   
+                        right_min = left_max = left_min + i;  
+                        right_max = left_max + i;  
+                        if (right_max > length)  
+                                right_max = length;  
+                        next = 0;  
+
+                        while (left_min < left_max && right_min < right_max)  
+                                tmp[next++] = list[left_min] > list[right_min] ? 
+								list[right_min++] : list[left_min++];  
+
+                        while (left_min < left_max)  
+                                list[--right_min] = list[--left_max]; 
+
+                        while (next > 0)  
+                                list[--right_min] = tmp[--next];  
+                }  
+        free(tmp);  
+}
+
 void QuickSortTest()
 {
 	int a[] = {2,0,4,9,3,6,8,7,1,5};
