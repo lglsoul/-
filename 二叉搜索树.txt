@@ -1,0 +1,283 @@
+#include<iostream>
+using namespace std;
+ 
+template<class K,class V>
+struct BinaSearTreeNode
+{
+	BinaSearTreeNode<K,V>* _left;
+	BinaSearTreeNode<K,V>* _right;
+	K _key;
+	V _value;
+	BinaSearTreeNode(const K& key,const V& value)
+		:_left(NULL)
+		,_right(NULL)
+		,_key(key)
+		,_value(value)
+	{}
+};
+
+template<class K,class V>
+class BinaSearTree
+{
+	typedef BinaSearTreeNode<K,V>  Node;
+public:
+	BinaSearTree()
+		:_root(NULL)
+	{}
+	bool Insert(const K& key,const V& value)
+	{
+		if(_root ==NULL)
+		{
+			_root = new Node(key,value);
+			return true;
+		}	
+
+		Node* cur = _root;
+		Node* tem = new Node(key,value);
+
+		while(cur)
+	{
+		if(cur->_key > key)
+		{
+			if(cur->_left)
+				cur=cur->_left;
+			else
+			{
+                cur->_left = tem;
+				return true;
+			}
+		}
+		else if(cur->_key == key)
+			return false;
+		else
+		{
+			if(cur->_right)
+				cur = cur->_right;
+			else	
+			{
+              cur->_right = tem;
+			  return false;
+			}
+		}
+	}
+		
+		return false;
+	
+		
+	}
+	bool Insert_R(const K& key,const V& value)
+	{
+		return _Insert_R(_root,key,value);
+	}
+
+	Node* Find(const K& key)
+	{
+		if(_root == NULL)
+			return NULL;
+
+		Node* cur =_root;
+		while(cur)
+		{
+			if(cur->_key == key)
+				return cur;
+			else if(cur->_key > key)
+				cur = cur->_left;
+			else
+				cur =cur->_right;
+		}
+		return false;
+	}
+
+	Node* Find_R(const K& key)
+	{
+		return _Find_R(_root,key);
+	}
+bool Remove(const K& key)
+	{
+		if(_root == NULL)
+			return false;
+
+		Node* cur =_root;
+		Node* prev = NULL;
+		while(cur)
+		{
+			
+			if(cur->_key == key)
+				break;
+			else if(cur->_key > key)
+			{
+					prev = cur;
+					cur = cur->_left;
+			}
+			else
+			{
+				prev = cur;
+                cur = cur->_right;
+			}
+			
+			
+		}
+
+		if(cur == NULL)
+			return false;
+
+		Node* del = cur;
+
+		if(cur->_right == NULL)
+		{
+			
+			if(prev == NULL)
+			{
+				_root = cur->_left;
+			}
+			else
+			{
+				if(prev->_left == cur)
+					prev->_left = cur->_left;
+
+				if(prev->_right == cur)
+					prev->_right = cur->_left;
+			}
+		}
+		else if(cur->_left == NULL)
+		{
+			
+			if(prev == NULL)
+			{
+				_root = cur->_right;
+			}
+			else
+			{
+				if(prev->_left == cur)
+					prev->_left = cur->_right;
+
+				if(prev->_right == cur)
+					prev->_right = cur->_right;
+			}
+		}
+		else
+		{
+			Node* Fist = cur->_right;
+			Node* tem ;
+			while(Fist->_left)
+			{
+				tem = Fist;
+				Fist = tem ->_left;
+			}
+			
+
+			swap(Fist->_key,cur->_key);
+			swap(Fist->_value,cur->_value);
+			tem->_left = Fist->_right;
+			del = Fist;
+		}
+		
+		delete del;
+		return true;
+	}
+
+	bool Remove_R(const K& key)
+	{
+		return _Remove_R(_root,key);
+	}
+
+	void Inorder()
+	{
+		_Inorder(_root);
+	}
+
+protected:
+	bool _Remove_R(Node*& root,const K&key)
+	{
+		if(root == NULL)
+			return false;
+		
+		if(root->_key>key)
+			return _Remove_R(root->_left,key);
+
+		if(root->_key < key)
+			return _Remove_R(root->_right,key);
+
+		if(root->_key == key)
+		{
+			Node* del = root;
+			if(root->_right == NULL)
+				root = root->_right;
+
+			else if(root->_left == NULL)
+				root = root ->_right;
+			else
+			{
+			Node* Fist = cur->_right;
+			Node* tem ;
+			while(Fist->_left)
+			{
+				tem = Fist;
+				Fist = tem ->_left;
+			}
+			
+
+			swap(Fist->_key,cur->_key);
+			swap(Fist->_value,cur->_value);
+			tem->_left = Fist->_right;
+			del = Fist;
+			}
+
+			delete del;
+			return true;
+		}
+
+		return false;
+	}
+
+
+
+	Node* _Find_R(Node* root,const K& key)
+	{
+		if(root == NULL)
+			return	NULL;
+		
+		if(root->_key>key)
+			return _Find_R(root->_left,key);
+
+		if(root->_key < key)
+			return _Find_R(root->_right,key);
+
+		if(root->_key == key)
+			return root;
+
+	}
+	bool _Insert_R(Node*& root,const K& key,const V& value)
+	{
+		if(root == NULL)
+			root = new Node (key,value);
+
+		if(root->_key>key)
+			_Insert_R(root->_left,key,value);
+
+		if(root->_key < key)
+			_Insert_R(root->_right,key,value);
+
+		if(root->_key == key)
+			return false;
+		
+	}
+
+	void _Inorder(Node*& root)
+	{
+		if(root ==NULL)
+			return;
+
+		if(root->_left)
+		_Inorder(root->_left);
+
+		
+		cout<<root->_key<<"  ";
+
+		if(root->_right)
+		_Inorder(root->_right);
+	}
+
+protected:
+	Node* _root;
+};
