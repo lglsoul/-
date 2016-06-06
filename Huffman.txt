@@ -1,0 +1,87 @@
+#pragma once
+#include<iostream>
+#include<assert.h>
+using namespace std;
+
+
+template<class T>
+struct HuffmanNode
+{
+	HuffmanNode<T>* _left;
+	HuffmanNode<T>* _right;
+	T  _weight;
+
+		HuffmanNode(const T& weight  = 0)
+		:_left(NULL)
+		,_right(NULL)
+		,_weight(weight)
+	{}
+
+};
+
+template<class T>
+class HuffmanTree
+{
+	typedef  HuffmanNode<T>	 Node;
+
+template<class T>
+struct NodeCompe
+{
+	bool operator()(HuffmanNode<T>*& l,HuffmanNode<T>*& R)
+	{
+		return (l->_weight < R->_weight);
+	}
+};
+
+
+public:
+	HuffmanTree()
+		:_root(NULL)
+	{}
+       
+	
+   HuffmanTree(const T* a,int size)
+  {
+		
+  }
+
+   Node* GetRoot()  
+    {  
+        return _root;  
+    }  
+
+Node* GreateTree(const T* a, size_t size, const T& invalid)
+{
+	assert(a);
+		Heap<Node*,NodeCompe<T>> s ;
+		for(int i = 0;i < size; i++)
+		{
+			if(a[i] != invalid)
+			{
+             Node* ptr = new Node(a[i]);
+			 s.Push(ptr);
+			}
+			
+		}
+
+		Node* cur ; 
+		while(s.Size() > 1)
+		{
+			Node* left = s.Top();
+			s.Pop();
+			Node* right = s.Top();
+			s.Pop();
+		
+			cur= new Node(left->_weight + right->_weight);
+			cur->_left = left;
+			cur->_right = right;
+			s.Push(cur);
+		}
+		_root = s.Top();
+	return _root;
+}
+private:
+	Node* _root;
+};
+
+

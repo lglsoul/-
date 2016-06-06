@@ -1,0 +1,133 @@
+#pragma once
+#include<vector>
+#include<assert.h>
+#include<iostream>
+using namespace std;
+
+template<class T>
+struct  Less
+{
+	bool operator()(const T& L,const T& R)
+	{
+	  return (L < R); 
+	}
+};
+
+
+template<class T>
+struct Oup
+{
+	bool operator()(const T& l,const T& R)
+	{
+		return (l > R);
+	}
+};
+
+
+
+template<class T,class Compare = Less<T>>
+class Heap
+{
+public:
+	Heap()
+		:_a(NULL)
+	{}
+	Heap(const T* arry,size_t size)
+	{
+		_a.reserve(size);
+		for(int i=0;i<size;i++)
+		{
+			_a.push_back(arry[i]);
+		}
+		for(int i = _a.size()-2; i >= 0; i--)
+		{
+               _AdjustADD(i);
+		}
+		
+	}
+	Heap(const vector<T>& arry)
+	{
+		_a.reserve(arry.size());
+		for(int i=0;i<arry.size();i++)
+		{
+			_a.push_back(arry._a[i]);
+		}
+	}
+
+	void Push(const T& x)
+	{
+		_a.push_back(x);
+		_ADjust(_a.size()-1);
+	}
+
+	void Pop()
+	{
+		swap(_a[0],_a[_a.size()-1]);
+		_a.pop_back();
+		_AdjustADD(0);
+	}
+	size_t Size()
+	{
+		return _a.size();
+	}
+
+	bool Empty()
+	{
+		return _a.empty();
+	}
+
+	T& Top()
+	{
+		return _a[0];
+	}
+
+	~Heap()
+	{}
+protected:
+	void _ADjust(size_t child)
+	{
+		
+		int parent = (child-1)/2;
+		while(child>0)
+		{
+		Compare con;
+		if(con(_a[child],_a[parent]))
+		{
+			swap(_a[parent],_a[child]);
+			child = parent;
+			parent = (parent-1)/2;
+		}
+		else
+		break;
+		}
+	}
+	void _AdjustADD(size_t parent)
+	{
+		Compare con;
+		int child = 2 * parent + 1 ;
+
+		while(child  < _a.size())
+		{
+		if(child+1 <_a.size() &&
+			con(_a[child+1] , _a[child]))
+			child++;
+
+		if(con(_a[child], _a[parent]))
+		{
+			swap(_a[parent],_a[child]);
+			parent = 2*parent+1;
+			child = 2*parent + 1 ;
+		 }
+		else
+		  break;
+		}
+	}
+
+protected:
+	vector<T> _a;
+};
+
+
+
+
+
