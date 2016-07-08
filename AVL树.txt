@@ -1,0 +1,279 @@
+#include<iostream>
+using namespace std;
+
+template<class K, class V>
+struct AVLtreNode    //AVL树的节点
+{
+	AVLtreNode<K,V>* _left;
+	AVLtreNode<K,V>* _right;
+	AVLtreNode<K,V>* _parent;
+	K _key;
+	V _value;
+	int bf; //平衡记录 -1/0/1
+
+	AVLtreNode(const K& key = K(),const V& value = V())  //初始化
+		:_left(NULL)
+		,_right(NULL)
+		,_parent(NULL)
+		,_key(key)
+		,_value(value)
+		,bf(0)
+	{
+	}
+
+};
+
+template<class K, class V>
+class AVLtree   //AVL树
+{
+	typedef AVLtreNode<K,V> Node;
+
+public:
+	AVLtree()
+		:_root(NULL)
+	{}
+
+	bool Insert(const K& key,const V& value)  //插入
+	{
+		if(NULL == _root) //如果为空，直接创建
+		{
+			_root = new Node(key,value);
+			return true;
+		}
+
+		Node* tem = new Node(key,value);
+		Node* cur = _root;
+		Node* parent = NULL;
+	while(cur)    //寻找并插入Key的位置
+	{
+		if(cur->_key > key)
+		{
+			if(cur->_left)
+			{
+                parent = cur;
+				cur=cur->_left;
+			}
+			else
+			{
+                cur->_left = tem;
+				tem ->_parent = cur;
+				
+			}
+		}
+		else if(cur->_key == key)
+			return false;
+		else
+		{
+			if(cur->_right)
+			{
+                 parent = cur;
+				cur=cur->_right;
+			}
+			else	
+			{
+              cur->_right = tem;
+			  tem ->_parent = cur;
+			}
+	     }
+	}
+	
+   bool juge = false;
+	while(parent)
+	{
+		if(parent->_left == cur)  //更新平衡因子
+			parent->bf--;
+		else
+			parent->bf++;
+
+		
+
+		if(parent->bf == 0)
+			break;
+
+		else if(parent->bf == -1 || parent->bf == 1) //向上更新
+		{
+			cur = parent;
+			parent = cur->_parent;
+		}
+		else    //进行旋转
+		{
+			if(parent->bf == 2)
+			{
+				if(cur->bf == 1)
+					_RotateL(parent);
+				else
+				_RotateRL(parent);
+			}
+			else
+			{
+				if(cur->bf == -1)
+					_RotateL(parent);
+				else
+				_RotateLR(parent);
+			}
+			juge = true;
+			break;
+		}
+	}
+		if(juge)
+		{
+			Node* ppNode = parent->_parent;
+			if(ppNode == NULL)
+				_root = parent;
+			else if(ppNode->_key > parent->_key)
+				ppNode->_left = parent;
+			else
+				ppNode->_right = parent;
+		}
+		
+
+		return true;
+	}
+
+	void InOrder()
+	{
+		_InOrder(_root);
+		cout<<endl;
+	}
+
+	bool IsBlance()
+	{
+		return _IsBlance(_root);
+	}
+
+protected:
+	void _InOrder(Node*& root)
+	{
+		if(root ==NULL)
+			return;
+
+		if(root->_left)
+		_InOrder(root->_left);
+
+		
+		cout<<root->_key<<"  ";
+
+		if(root->_right)
+		_InOrder(root->_right);
+	}
+	
+
+	void _RotateR(Node* &parent)
+	{
+		Node* subL = parent->_left;
+		Node* subLR = subL->_right;
+		parent->_left = subLR;
+		if(subLR)
+			subLR->_parent = parent;
+		subL->_right = parent;
+		subL->_parent = parent->_parent;
+		parent->_parent = subL;
+		parent =subL;
+		parent->bf = 0;
+	}
+
+	void _RotateL(Node* &parent)
+	{
+		Node* subR = parent->_right;
+		Node* subRL = subR->_left;
+		parent->_right = subRL;
+
+		if(subRL)
+			subRL->_parent = parent;
+		subR->_left = parent;
+		subR->_parent = parent->_parent;
+		parent->_parent = subR;
+
+		parent = subR;
+		parent->bf = 0;
+	}
+
+	void _RotateLR(Node*& parent)
+	{
+		Node* pNode = parent;
+		Node* subLNode = parent->_left;
+		Node* subLRNode = subLNode->_right;
+		int _bf = subLRNode->bf;
+
+		_RotateL(parent->_left);
+		_RotateR(parent);
+
+		if (_bf == -1)
+		{
+			subLNode->bf = 0;
+			pNode->bf = 1;
+		}
+		else if (_bf == 1)
+		{
+			subLNode->bf = -1;
+			pNode->bf = 0;
+		}
+		else
+		{
+			subLNode->bf = 0;
+			pNode->bf = 0;
+		}
+
+		subLRNode->bf = 0;
+	}
+
+	void _RotateRL(Node*& parent)
+	{
+		Node* pNode = parent;
+		Node* subRNode = parent->_right;
+		Node* subRLNode = subRNode->_left;
+		int _bf = subRLNode->bf;
+
+		_RotateR(parent->_right);
+		_RotateL(parent);
+
+		if (_bf == 1)
+		{
+			subRNode->bf = 0;
+			pNode->bf = -1;
+		}
+		else if (_bf == -1)
+		{
+			subRNode->bf = 1;
+			pNode->bf = 0;
+		}
+		else
+		{	
+			subRNode->bf = 0;
+			pNode->bf = 0;
+		}
+
+		subRLNode->bf = 0;
+	}
+
+	bool _IsBlance(Node* root)
+	{
+		if (root == NULL)
+			return true;
+		
+		int _bf = _Height(root->_right) - _Height(root->_left);
+		//assert(bf == root->_bf);
+
+		if (_bf != root->bf)
+		{
+			cout<<"平衡因子异常："<<root->_key<<endl;
+		}
+
+		return bf == root->bf && abs(bf) < 2
+			&& _IsBlance(root->_left) && _IsBlance(root->_right);
+	}
+
+	int _Height(Node* root)
+	{
+		if (root == NULL)
+			return 0;
+
+		int left = _Height(root->_left);
+		int right = _Height(root->_right);
+
+		return left > right ? left+1 : right+1;
+	}
+protected:
+	Node* _root;
+};
+
