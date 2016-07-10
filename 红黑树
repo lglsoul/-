@@ -1,0 +1,215 @@
+#include<iostream>
+#include<stdlib.h>
+using namespace std;
+
+enum colour
+{
+	RED,
+	BLACK
+};
+
+template<class K,class V>
+struct RBTreeNode
+{
+	RBTreeNode<K,V>* _left;
+	RBTreeNode<K,V>* _right;
+	RBTreeNode<K,V>* _parent;
+	K _key;
+	V _value;
+    colour col;
+	RBTreeNode(const K& key,const V& value)
+		:_left(NULL)
+		,_right(NULL)
+		,_parent(NULL)
+		,col(RED)
+		,_key(key)
+		,_value(value)
+	{}
+
+};
+
+
+template<class K,class V>
+class RBTree
+{
+	typedef RBTreeNode<K,V> Node;
+public:
+	RBTree()
+		:_root(NULL)
+	{}
+
+	bool Insert(const K& key,const V& value)
+	{
+		if(_root == NULL)
+		{
+			_root = new Node(key,value);
+			_root->col = BLACK;
+			return true;
+		}
+
+		Node* cur = _root;
+		Node* tem = new Node(key,value);
+
+		while(cur)
+		{
+			if(cur->_key > key)
+			{
+				if(cur->_left)
+					cur = cur->_left;
+				else
+				{
+                 cur->_left = tem;
+				 tem->_parent = cur;
+				 break;
+				}
+			}
+			else if(cur->_key < key)
+			{
+				if(cur->_right)
+					cur = cur->_right;
+				else
+				{
+                 cur->_right = tem;
+				 tem->_parent = cur;
+				 break;
+				}
+			 }
+			else
+				return false;
+			}
+		
+
+		while(cur->_parent != _root && cur->_parent->col == RED )
+		{
+			Node* parent = cur->_parent;
+			Node* grandfather = parent->_parent;
+			Node* uncle;
+			if(parent == grandfather->_left)
+			{
+				uncle = grandfather->_right;
+
+				if(uncle&&uncle->col== RED)
+				{
+					parent->col = uncle->col = BLACK;
+					uncle->col = BLACK;
+					grandfather->col = RED;
+
+					cur = grandfather;
+				}
+				else
+				{
+					if(cur == parent->_right)
+					{
+						_RotateL(parent);
+					}
+					parent->col = BLACK;
+					grandfather->col = RED;
+					_RotateR(grandfather);
+					break;
+				}
+			}
+			else
+			{
+                 uncle = grandfather->_left;
+				 if(uncle &&uncle->col== RED)
+				{
+					parent->col = uncle->col = BLACK;
+					grandfather->col = RED;
+
+					cur = grandfather;
+					parent = cur->_parent;
+				}
+				else
+				{
+					if(cur == parent->_left)
+					{
+						_RotateR(parent);
+					}
+					parent->col = BLACK;
+					grandfather->col = RED;
+					_RotateL(grandfather);
+					break;
+				}
+			}	
+		}
+
+		    _root->col = BLACK；
+			return true;
+	
+	}
+
+	void Inoder()
+	{
+		_Inoder(_root);
+	}
+
+protected:
+
+	void _Inoder(Node* root)
+	{
+		if(root == NULL)
+			return;
+		if(root->_left)
+			_Inoder(root->_left);
+		cout<<root->_key<<" " ;
+		if(root->_right)
+			_Inoder(root->_right);
+	}
+
+
+		void _RotateR(Node*& parent)
+		{
+			Node* subL = parent->_left;
+			Node* subLR = subL->_right;
+			parent->_left = subLR;
+			if(subLR)
+			subLR->_parent = parent;
+			subL->_right = parent;
+			subL->_parent = parent->_parent;
+			parent->_parent = subL;
+
+			if(parent->_parent == NULL)
+				_root = subL;
+			else
+			{
+				if(subL->_key > subL->_parent->_key)
+					subL->_parent->_right == subL;
+				else
+					subL->_parent->_left == subL;
+			}
+
+		
+		}
+
+void _RotateL(Node*& parent)
+		{
+			Node* subR = parent->_right;
+			Node* subRL = subR->_left;
+			parent->_right = subRL;
+			if(subRL)
+			subRL->_parent = parent;
+
+			subR->_left = parent;
+			subR->_parent = parent->_parent;
+			parent->_parent = subR;
+
+			parent = subR;
+
+			if(parent->_parent == NULL)
+				_root = parent;
+			else
+			{
+				Node* ppNode = parent->_parent;
+			if (ppNode->_key < parent->_key)
+				ppNode->_right = parent;
+			else
+				ppNode->_left = parent;
+			}
+		}
+
+
+
+protected:
+	Node* _root;
+};
+
