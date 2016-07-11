@@ -1,4 +1,4 @@
-#include<iostream>
+﻿#include<iostream>
 #include<stdlib.h>
 using namespace std;
 
@@ -37,7 +37,7 @@ public:
 	RBTree()
 		:_root(NULL)
 	{}
-
+           
 	bool Insert(const K& key,const V& value)
 	{
 		if(_root == NULL)
@@ -46,7 +46,7 @@ public:
 			_root->col = BLACK;
 			return true;
 		}
-
+                 
 		Node* cur = _root;
 		Node* tem = new Node(key,value);
 
@@ -78,12 +78,14 @@ public:
 				return false;
 			}
 		
-
+                   
 		while(cur->_parent != _root && cur->_parent->col == RED )
 		{
 			Node* parent = cur->_parent;
 			Node* grandfather = parent->_parent;
 			Node* uncle;
+                       
+                         //情况一
 			if(parent == grandfather->_left)
 			{
 				uncle = grandfather->_right;
@@ -98,6 +100,8 @@ public:
 				}
 				else
 				{
+                                             //情况二
+                                             //情况三
 					if(cur == parent->_right)
 					{
 						_RotateL(parent);
